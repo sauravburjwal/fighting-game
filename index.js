@@ -263,7 +263,7 @@ function animate() {
 animate();
 
 window.addEventListener("keydown", (event) => {
-  if (!player.dead) {
+  if (!player.dead && timer >= 0) {
     switch (event.key) {
       case "a":
         player.lastKey = "a";
@@ -283,7 +283,7 @@ window.addEventListener("keydown", (event) => {
         break;
     }
   }
-  if (!enemy.dead) {
+  if (!enemy.dead && timer >= 0) {
     switch (event.key) {
       case "ArrowLeft":
         enemy.lastKey = "ArrowLeft";
