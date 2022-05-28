@@ -51,6 +51,7 @@ class Sprite {
 
 class Fighter extends Sprite {
   constructor({
+    name,
     position,
     velocity,
     color = "red",
@@ -72,6 +73,7 @@ class Fighter extends Sprite {
       framesMax,
       offset,
     });
+    this.name = name;
     this.velocity = velocity;
     this.width = 50;
     this.height = 150;
@@ -129,13 +131,27 @@ class Fighter extends Sprite {
   }
   takeHit() {
     this.health -= 20;
+    this.name === "Mack"
+      ? gsap.to("#player-health", {
+          width: player.health + "%",
+        })
+      : gsap.to("#enemy-health", {
+          width: enemy.health + "%",
+        });
     if (this.health <= 0) {
       this.switchSprite("death");
+      determineWinner({ player, enemy, timerId });
     } else {
       this.switchSprite("takeHit");
     }
   }
   switchSprite(sprite) {
+    if (this.image === this.sprites.death.image) {
+      if (this.framesCurrent === this.framesMax - 1) {
+        this.dead = true;
+      }
+      return;
+    }
     //override all other animations with attack animation
     if (
       this.image === this.sprites.attack1.image &&
@@ -148,12 +164,6 @@ class Fighter extends Sprite {
       this.framesCurrent < this.sprites.takeHit.framesMax - 1
     )
       return;
-    if (this.image === this.sprites.death.image) {
-      if (this.framesCurrent === this.framesMax - 1) {
-        this.dead = true;
-      }
-      return;
-    }
     switch (sprite) {
       case "idle":
         if (this.image !== this.sprites.idle.image) {

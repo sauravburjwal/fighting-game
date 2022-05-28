@@ -27,6 +27,7 @@ const shop = new Sprite({
   framesMax: 6,
 });
 const player = new Fighter({
+  name: "Mack",
   position: {
     x: 124,
     y: 0,
@@ -83,6 +84,7 @@ const player = new Fighter({
   color: "red",
 });
 const enemy = new Fighter({
+  name: "Kenji",
   position: {
     x: 850,
     y: 0,
@@ -168,10 +170,14 @@ function animate() {
 
   player.velocity.x = 0;
 
-  if (keys.a.pressed && player.lastKey === "a") {
+  if (keys.a.pressed && player.lastKey === "a" && player.position.x > 30) {
     player.velocity.x = -5;
     player.switchSprite("run");
-  } else if (keys.d.pressed && player.lastKey === "d") {
+  } else if (
+    keys.d.pressed &&
+    player.lastKey === "d" &&
+    player.position.x < 954
+  ) {
     player.velocity.x = 5;
     player.switchSprite("run");
   } else {
@@ -185,10 +191,18 @@ function animate() {
   }
 
   enemy.velocity.x = 0;
-  if (keys.ArrowLeft.pressed && enemy.lastKey === "ArrowLeft") {
+  if (
+    keys.ArrowLeft.pressed &&
+    enemy.lastKey === "ArrowLeft" &&
+    enemy.position.x > 30
+  ) {
     enemy.velocity.x = -5;
     enemy.switchSprite("run");
-  } else if (keys.ArrowRight.pressed && enemy.lastKey === "ArrowRight") {
+  } else if (
+    keys.ArrowRight.pressed &&
+    enemy.lastKey === "ArrowRight" &&
+    enemy.position.x < 954
+  ) {
     enemy.velocity.x = 5;
     enemy.switchSprite("run");
   } else {
@@ -211,10 +225,9 @@ function animate() {
     player.framesCurrent === 4
   ) {
     player.isAttacking = false;
-    enemy.takeHit();
-    gsap.to("#enemy-health", {
-      width: enemy.health + "%",
-    });
+    if (!player.dead) {
+      enemy.takeHit();
+    }
   }
   // if player misses
   if (player.isAttacking && player.framesCurrent === 4) {
@@ -229,18 +242,22 @@ function animate() {
     enemy.framesCurrent === 2
   ) {
     enemy.isAttacking = false;
-    player.takeHit();
-    gsap.to("#player-health", {
-      width: player.health + "%",
-    });
+    if (!enemy.dead) {
+      player.takeHit();
+    }
   }
 
   //if enemy misses
   if (enemy.isAttacking && enemy.framesCurrent === 2) {
     enemy.isAttacking = false;
   }
-  if (player.health <= 0 || enemy.health <= 0) {
+  if (player.health <= 0) {
     determineWinner({ player, enemy, timerId });
+    player.switchSprite("death");
+  }
+  if (enemy.health <= 0) {
+    determineWinner({ player, enemy, timerId });
+    enemy.switchSprite("death");
   }
 }
 animate();
@@ -294,10 +311,7 @@ window.addEventListener("keyup", (event) => {
     case "d":
       keys.d.pressed = false;
       break;
-    //DO AT THE END
-    // case " ":
-    //   player.attack();
-    //   break;
+
     case "ArrowLeft":
       keys.ArrowLeft.pressed = false;
       break;
